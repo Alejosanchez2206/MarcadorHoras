@@ -12,7 +12,6 @@ module.exports = {
     data: new SlashCommandBuilder()
         .setName('ausencias')
         .setDescription('Justificar tu ausencia o vacaciones'),
-
         
     /**
      * @param {ChatInputCommandInteraction} interaction

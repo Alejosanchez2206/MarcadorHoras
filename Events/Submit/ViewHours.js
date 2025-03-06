@@ -32,6 +32,7 @@ module.exports = {
                     {
                         $match: {
                             userId: userId,
+                            guildId: interaction.guild.id,
                             exit: true,
                             $expr: {
                                 $and: [
