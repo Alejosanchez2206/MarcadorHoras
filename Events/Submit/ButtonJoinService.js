@@ -6,6 +6,7 @@ const {
 const losgsService = require('../../Models/logsService');
 const { getUserSelections } = require('./SelectForm');
 const configChannels = require('../../Models/configChannels');
+const employees = require('../../Models/employedModel');
 
 module.exports = {
     name: Events.InteractionCreate,
@@ -26,6 +27,11 @@ module.exports = {
                     return interaction.editReply({ content: 'No se ha seleccionado ninguna asignación.' });
                 }
 
+                const validarEmpleado = await employees.findOne({ guildId: interaction.guild.id, userId: interaction.user.id, active: true });
+
+                if (!validarEmpleado) {
+                    return interaction.editReply({ content: 'No estás registrado como empleado en el sistema.' });
+                }
 
                 const validate = await losgsService.findOne({ guildId: interaction.guild.id, userId: interaction.user.id, exit: false });
 
