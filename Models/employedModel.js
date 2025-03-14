@@ -5,6 +5,8 @@ const employeedSchema = new Schema({
     userId: String,
     firstName: String, 
     lastName: String,
+    userName: String,
+    userAvatar: String,
     dateJoin: { type: Date, default: Date.now },
     active: { type: Boolean, default: true },
     performanceObservations: [

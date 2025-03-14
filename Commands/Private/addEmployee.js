@@ -31,13 +31,15 @@ module.exports = {
             const firstName = interaction.options.getString('firstname');
             const lastName = interaction.options.getString('lastname');
             const user = interaction.options.getUser('user');
-
+            const avatar = user.avatarURL();
             const validar = await employeeSchema.findOne({ guildId: interaction.guild.id, userId: user.id, active: true });
 
             if (!validar) {
                 const response = await employeeSchema.create({
                     guildId: interaction.guild.id,
                     userId: user.id,
+                    userAvatar: avatar,
+                    userName: user.username,
                     firstName: firstName,
                     lastName: lastName
                 });
