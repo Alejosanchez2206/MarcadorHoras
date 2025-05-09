@@ -10,7 +10,7 @@ module.exports = {
     */
     async execute(client) {
         console.log('✅ Monitoreando los servicios de tus empleados!'.green);
-        // Función para verificar servicios activos
+
         const verifyService = async () => {
             try {
                 const guilds = client.guilds.cache.map(guild => guild.id);
@@ -20,20 +20,22 @@ module.exports = {
                     const nowSeconds = Math.floor(Date.now() / 1000);
                     const differenceSeconds = nowSeconds - service.dateJoin;
 
-                    // Notificar después de 4 horas (14400 segundos)
-                    if (differenceSeconds >= 14400) {
+                    // 🟡 Alerta a las 4 horas (14400 segundos)
+                    if (differenceSeconds >= 14400 && !service.notifiedFourHours) {
                         try {
                             const user = await client.users.fetch(service.userId);
                             if (user) {
                                 await user.send("⏳ **Recuerda cerrar tu turno!**\nHas estado en servicio durante más de 4 horas sin cerrar tu turno. Hazlo para no perder el registro de tus horas.");
                             }
+                            service.notifiedFourHours = true; // Marcar como notificado
+                            await service.save(); // Guardar inmediatamente
                         } catch (err) {
                             console.log(`❌ No se pudo enviar el recordatorio a ${service.userId}`);
                         }
                     }
 
-                    // Expulsar después de 5 horas (18000 segundos)
-                    if (differenceSeconds >= 18000) {
+                    // 🔴 Expulsión automática a las 5 horas (18000 segundos)
+                    if (differenceSeconds >= 18000 && !service.notifiedFiveHours) {
                         try {
                             const user = await client.users.fetch(service.userId);
                             if (user) {
@@ -46,8 +48,10 @@ module.exports = {
                         service.dateLeave = nowSeconds;
                         service.duration = differenceSeconds;
                         service.exit = true;
-                        await service.save();
+                        service.notifiedFiveHours = true; // Marcar como notificado
+                        await service.save(); // Guardar inmediatamente
 
+                        // 📢 Enviar log al canal correspondiente
                         const logsChannel = await configChannels.findOne({ guildId: service.guildId, permission: 'logs-servicios' });
                         if (logsChannel) {
                             const hours = Math.floor(differenceSeconds / 3600);
@@ -65,7 +69,7 @@ module.exports = {
                                 )
                                 .setFooter({ text: '💼 Gestión de Turnos | Optimiza tu trabajo 🚨' });
 
-                            await client.channels.cache.get(logsChannel.channelId).send({ embeds: [logsEmbed] });
+                            await client.channels.cache.get(logsChannel.channelId)?.send({ embeds: [logsEmbed] });
                         }
                     }
                 }
@@ -74,6 +78,6 @@ module.exports = {
             }
         };
 
-        setInterval(verifyService, 60000);
+        setInterval(verifyService, 600000); // Esto equivale a 10 minutos
     },
 };

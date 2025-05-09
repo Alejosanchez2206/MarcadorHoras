@@ -7,6 +7,8 @@ const logsServiceSchema = new Schema({
     dateJoin: String,
     dateLeave: String,
     duration: String,
+    notifiedFourHours : { type: Boolean, default: false },
+    notifiedFiveHours : { type: Boolean, default: false },
     exit: { type: Boolean, default: false }
 },
     {
